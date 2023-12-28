@@ -144,7 +144,7 @@ if __name__ == "__main__":
     from torchvision.utils import make_grid
     from torchvision.datasets.svhn import SVHN
     from tqdm import tqdm
-    import torchnet as tnt
+    import torchnet
 
     model = CapsuleNet()
     # model.load_state_dict(torch.load('epochs/epoch_327.pt'))
@@ -155,9 +155,9 @@ if __name__ == "__main__":
     optimizer = Adam(model.parameters())
 
     engine = Engine()
-    meter_loss = tnt.meter.AverageValueMeter()
-    meter_accuracy = tnt.meter.ClassErrorMeter(accuracy=True)
-    confusion_meter = tnt.meter.ConfusionMeter(NUM_CLASSES, normalized=True)
+    meter_loss = torchnet.meter.AverageValueMeter()
+    meter_accuracy = torchnet.meter.ClassErrorMeter(accuracy=True)
+    confusion_meter = torchnet.meter.ConfusionMeter(NUM_CLASSES, normalized=True)
 
     train_loss_logger = VisdomPlotLogger('line', opts={'title': 'Train Loss'})
     train_error_logger = VisdomPlotLogger('line', opts={'title': 'Train Accuracy'})
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         data = dataset.data
         labels = dataset.labels
 
-        tensor_dataset = tnt.dataset.TensorDataset([data, labels])
+        tensor_dataset = torchnet.dataset.TensorDataset([data, labels])
 
         return tensor_dataset.parallel(batch_size=BATCH_SIZE, num_workers=4, shuffle=mode)
 

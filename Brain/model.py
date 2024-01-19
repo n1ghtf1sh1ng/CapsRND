@@ -3,7 +3,7 @@ import numpy as np
 from torch import nn
 from torch.nn import functional as F
 from torch.distributions.categorical import Categorical
-from capsule_network import Conv1, PrimaryCaps, LinearCaps
+from Brain.capsule_network import Conv1, PrimaryCaps, LinearCaps
 # from torchsummary import summary
 
 
@@ -141,6 +141,7 @@ class PredictorModel(nn.Module, ABC):
             elif isinstance(layer, nn.Linear):
                 nn.init.orthogonal_(layer.weight, gain=np.sqrt(2))
                 layer.bias.data.zero_()
+
 
     def forward(self, inputs):
         x = inputs

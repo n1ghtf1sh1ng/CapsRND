@@ -32,3 +32,12 @@ class Conv1(nn.Module):
 		# h: [batch_size, 16, 21, 21]
 
 		return h
+
+
+def squash(s, dim):
+	# This is Eq.1 from the paper.
+	mag_sq = torch.sum(s**2, dim=dim, keepdim=True)
+	mag = torch.sqrt(mag_sq)
+	s = (mag_sq / (1.0 + mag_sq)) * (s / mag)
+
+	return s

@@ -3,6 +3,7 @@ import numpy as np
 from torch import nn
 from torch.nn import functional as F
 from torch.distributions.categorical import Categorical
+from capsule_network import Conv1, PrimaryCaps, LinearCaps
 # from torchsummary import summary
 
 
@@ -90,19 +91,11 @@ class TargetModel(nn.Module, ABC):
         super(TargetModel, self).__init__()
         self.state_shape = state_shape
 
-        c, w, h = state_shape
-        self.conv1 = nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4)
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2)
-        self.conv3 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1)
+        self.conv1 = Conv1()
+        self.primary_caps = PrimaryCaps()
+        self.linear_caps = LinearCaps()
 
-        conv1_out_w = conv_shape(w, 8, 4)
-        conv1_out_h = conv_shape(h, 8, 4)
-        conv2_out_w = conv_shape(conv1_out_w, 4, 2)
-        conv2_out_h = conv_shape(conv1_out_h, 4, 2)
-        conv3_out_w = conv_shape(conv2_out_w, 3, 1)
-        conv3_out_h = conv_shape(conv2_out_h, 3, 1)
-
-        flatten_size = conv3_out_w * conv3_out_h * 64
+        flatten_size = 8 * 16
 
         self.encoded_features = nn.Linear(in_features=flatten_size, out_features=512)
 
@@ -116,9 +109,9 @@ class TargetModel(nn.Module, ABC):
 
     def forward(self, inputs):
         x = inputs
-        x = F.leaky_relu(self.conv1(x))
-        x = F.leaky_relu(self.conv2(x))
-        x = F.leaky_relu((self.conv3(x)))
+        x = self.conv1(x)
+        x = self.primary_caps(x)
+        x = self.linear_caps(x)
         x = x.contiguous()
         x = x.view(x.size(0), -1)
 
@@ -131,19 +124,11 @@ class PredictorModel(nn.Module, ABC):
         super(PredictorModel, self).__init__()
         self.state_shape = state_shape
 
-        c, w, h = state_shape
-        self.conv1 = nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4)
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2)
-        self.conv3 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1)
+        self.conv1 = Conv1()
+        self.primary_caps = PrimaryCaps()
+        self.linear_caps = LinearCaps()
 
-        conv1_out_w = conv_shape(w, 8, 4)
-        conv1_out_h = conv_shape(h, 8, 4)
-        conv2_out_w = conv_shape(conv1_out_w, 4, 2)
-        conv2_out_h = conv_shape(conv1_out_h, 4, 2)
-        conv3_out_w = conv_shape(conv2_out_w, 3, 1)
-        conv3_out_h = conv_shape(conv2_out_h, 3, 1)
-
-        flatten_size = conv3_out_w * conv3_out_h * 64
+        flatten_size = 8 * 16
 
         self.fc1 = nn.Linear(in_features=flatten_size, out_features=512)
         self.fc2 = nn.Linear(in_features=512, out_features=512)
@@ -159,9 +144,9 @@ class PredictorModel(nn.Module, ABC):
 
     def forward(self, inputs):
         x = inputs
-        x = F.leaky_relu(self.conv1(x))
-        x = F.leaky_relu(self.conv2(x))
-        x = F.leaky_relu((self.conv3(x)))
+        x = self.conv1(x)
+        x = self.primary_caps(x)
+        x = self.linear_caps(x)
         x = x.contiguous()
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))

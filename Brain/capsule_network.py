@@ -112,7 +112,7 @@ class PrimaryCaps(nn.Module):
 
 
 class LinearCaps(nn.Module):
-	def __init__(self, routing_iters, gpu):
+	def __init__(self, routing_iters=3, gpu=0):
 		super(LinearCaps, self).__init__()
 
 		self.routing_iters = routing_iters

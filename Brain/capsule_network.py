@@ -112,11 +112,11 @@ class PrimaryCaps(nn.Module):
 
 
 class LinearCaps(nn.Module):
-  def __init__(self, routing_iters=3, gpu=0):
+  def __init__(self, routing_iters=3):
     super(LinearCaps, self).__init__()
 
+    self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     self.routing_iters = routing_iters
-    self.gpu = gpu
 
     self.in_capsules = 2401
     self.in_capsule_size = 8
@@ -162,8 +162,7 @@ class LinearCaps(nn.Module):
 
     # Initialize routing logits to zero.
     b_ij = Variable(torch.zeros(self.in_capsules, self.out_capsules, 1))
-    if self.gpu >= 0:
-      b_ij = b_ij.cuda(self.gpu)
+    b_ij = b_ij.to(self.device)
     # b_ij: [in_capsules=2401, out_capsules=8, 1]
 
     # Iterative routing.

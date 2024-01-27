@@ -82,7 +82,7 @@ if __name__ == '__main__':
         init_action_probs = np.zeros(rollout_base_shape + (config["n_actions"],))
         init_int_rewards = np.zeros(rollout_base_shape)
         init_ext_rewards = np.zeros(rollout_base_shape)
-        init_dones = np.zeros(rollout_base_shape, dtype=np.bool)
+        init_dones = np.zeros(rollout_base_shape, dtype=bool)
         init_int_values = np.zeros(rollout_base_shape)
         init_ext_values = np.zeros(rollout_base_shape)
         init_log_probs = np.zeros(rollout_base_shape)
